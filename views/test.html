@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="libs/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="libs/bootstrap/dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="libs/themify-icons/themify-icons.css">
+	<link rel="stylesheet" type="text/css" href="libs/Ionicons/css/ionicons.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+	<script src="libs/jquery/dist/jquery.min.js"></script>
+	<script src="libs/bootstrap/dist/js/bootstrap.min.js"></script>
+
+	<script src="/socket.io/socket.io.js"></script>
+
+	<script src="libs/angular/angular.js"></script>
+</head>
+<body>
+	<form>
+	  <div class="form-group">
+	    <label for="username">Username:</label>
+	    <input type="text" class="form-control" id="username">
+	  </div>
+	  <button type="button" class="btn btn-default" id="submit">Submit</button>
+	</form>
+</body>
+<script src="js/index.js"></script>
+<script type="text/javascript">
+	socket.on("false", function(data){
+		alert(data);
+	});
+
+	socket.on("online", function(data){
+		console.log(data);
+	})
+	$("#submit").click(function(){
+		socket.emit("new user", $("#username").val());
+	})
+</script>
+</html>

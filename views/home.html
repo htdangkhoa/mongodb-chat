@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Home</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.min.js"></script> -->
+	<link rel="stylesheet" type="text/css" href="libs/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="libs/bootstrap/dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="libs/themify-icons/themify-icons.css">
+	<link rel="stylesheet" type="text/css" href="libs/Ionicons/css/ionicons.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+	<script src="libs/jquery/dist/jquery.min.js"></script>
+	<script src="libs/bootstrap/dist/js/bootstrap.min.js"></script>
+
+	<script src="/socket.io/socket.io.js"></script>
+
+	<script src="libs/angular/angular.js"></script>
+	<script src="libs/angular-translate/dist/angular-translate.js"></script>
+	<script src="libs/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
+</head>
+<body ng-app="myApp" ng-controller="HomeCtrl">
+	<% if (user) { %>
+		<script type="text/javascript">
+			var user = <%- user %>
+		</script>
+		<div class="container">
+			<div class="row mainbox">
+				<div class="col-md-4 friendslist">
+					<div class="_header">
+						<i class="icon ion-ios-gear-outline" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#settingsModal"></i>
+						<p>{{'FRIENDS' | translate}}</p>
+						<i class="icon ion-ios-plus-outline pull-right" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#addFriendModal"></i>
+
+						<!-- Modal -->
+						<div class="modal fade" id="addFriendModal" role="dialog">
+							<div class="modal-dialog">
+
+								<!-- Modal content-->
+								<div class="modal-content">
+									<div class="modal-header">
+										<button class="btn btn-close" data-dismiss="modal">{{ 'CLOSE' | translate }}</button>
+										<h4 class="modal-title">{{ 'ADD FRIENDS' | translate }}</h4>
+									</div>
+									<div class="modal-body">
+										<form>
+											<div class="form-group">
+												<label for="email">{{ 'EMAIL ADDRESS' | translate }}:</label>
+												<input type="email" placeholder="{{'EMAIL ADDRESS' | translate}}" ng-model="af_email" class="form-control" ng-keyup="checkAddEmail()">
+											</div>
+											<!-- <br/><br/> -->
+											<div class="modal-footer-bar">
+												<p>{{ error | translate }}.</p>
+												<button type="button" class="btn btn-default" ng-click="addFriend()" ng-disabled="checkEmail">{{ 'ADD' | translate }}</button>
+											</div>
+										</form>
+									</div>
+								</div>
+							  
+							</div>
+						</div>
+
+						<!-- Modal -->
+						<div class="modal fade" id="settingsModal" role="dialog">
+							<div class="modal-dialog">
+
+								<!-- Modal content-->
+								<div class="modal-content">
+									<div class="modal-header">
+										<button class="btn btn-save" data-dismiss="modal" ng-click="saveSettings()">{{ 'DONE' | translate }}</button>
+										<button class="btn btn-close" data-dismiss="modal">{{ 'CLOSE' | translate }}</button>
+										<h4 class="modal-title">{{ 'SETTINGS' | translate }}</h4>
+									</div>
+									<div class="modal-body">
+										<center>
+											<img width="80" height="80" src="{{user.avatar}}">
+										</center>
+										<div class="settings-panel">
+											<div class="settings-field">
+												<span class="title">{{ 'STATUS' | translate }}: </span>
+												<span class="value" style="display: flex;">
+												<div class="status _online" ng-show="status == 'online'"></div>
+												<div class="status _busy" ng-show="status == 'busy'"></div>
+												<div class="status _invisible" ng-show="status == 'invisible'"></div>
+												<select class="form-control" ng-model='status' ng-init="initStatus(user.status)" required>
+													<option ng-selected="true" value="online">
+														{{ 'ONLINE' | translate }}
+													</option>
+													<option value="busy">
+														{{ 'BUSY' | translate }}
+													</option>
+													<option value="invisible">
+														{{ 'INVISIBLE' | translate }}
+													</option>
+												</select>
+													
+												</span>
+											</div>
+											<div class="settings-field">
+												<span class="title">{{ 'EMAIL' | translate }}: </span>
+												<span class="value">{{ user.email }}</span>
+											</div>
+											<div class="settings-field">
+												<span class="title">{{ 'NAME' | translate }}: </span>
+												<span class="value">{{ user.name }}</span>
+											</div>
+											<div class="settings-field">
+												<span class="title">{{ 'PHONE' | translate }}: </span>
+												<span class="value">{{ user.phone }}</span>
+											</div>
+											<div class="settings-field">
+												<span class="title">{{ 'LANGUAGE' | translate }}: </span>
+												<span class="value" style="display: flex;">
+												<select class="form-control" ng-model='locales' ng-init="initLocale()" ng-change="changeLang(locales)">
+													<option ng-selected="true" value="en">
+														{{ 'ENGLISH' | translate }}
+													</option>
+													<option value="vi">
+														{{ 'VIETNAMESE' | translate }}
+													</option>
+												</select>
+													
+												</span>
+											</div>
+											<button class="btn btn-logout" ng-click="logout()">{{ 'LOGOUT' | translate }}</button>
+										</div>
+									</div>
+								</div>
+							  
+							</div>
+						</div>
+					</div>
+					<div class="list">
+						<div class="toolbox">
+							<div>
+								<i class="icon ion-ios-search"></i>
+								<input class="form-control" type="text" placeholder="{{ 'SEARCH FRIEND' | translate }}">
+							</div>
+							<button class="btn" style="width: 100%;">{{ 'CREATE NEW GROUP' | translate }}</button>	
+						</div>
+						
+						<div class="item" ng-repeat="friend in friends" ng-show="friend.status !== 'pendding'" id="{{ friend._id }}" ng-click="selectId(friend, $index)">
+							<p class="notify" style="display: block;"></p>
+							<img src="{{ friend.avatar }}"/>
+							<div>
+								<!-- <div ng-repeat="onl in online" ng-if="friend._id === onl.id" class="status _{{ onl.status }}" style="position: absolute; padding: 0px; margin-top: 7px;"></div> -->
+
+								<div class="status _invisible" style="position: absolute; padding: 0px; margin-top: 7px;"></div>
+								<span class="title" style="margin-left: 15px;">{{ friend.name }}</span>
+								<br/>
+								<span>{{ friend.email }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			  	<!-- <div class="col-md-8 chatlist" ng-show="checkChat"> -->
+			  	<div class="col-md-8 chatlist">
+			  		<div class="_header" id="chatbox">
+			  			<div class="notification" data-toggle="modal" data-keyboard="false" data-target="#notiModal" ng-click="sumNoti = 0">{{ sumNoti }}</div>
+			  			<i class="icon ion-ios-bell-outline" data-toggle="modal" data-keyboard="false" data-target="#notiModal" style="position: absolute; top: 7px; left: 7px;" ng-click="sumNoti = 0"></i>
+
+			  			<!-- Modal -->
+						<div class="modal fade" id="notiModal" role="dialog">
+							<div class="modal-dialog">
+
+								<!-- Modal content-->
+								<div class="modal-content">
+									<div class="modal-header">
+										<button class="btn btn-close" data-dismiss="modal">{{ 'CLOSE' | translate }}</button>
+										<h4 class="modal-title">{{ 'NOTIFICATION' | translate }}</h4>
+									</div>
+									<div class="modal-body" style="padding: 0px 15px;">
+										<div style="text-align: center; margin: 20px; font-size: 16px; color: #999;" ng-show="friends.length == 0">
+											{{ 'YOU DO NOT HAVE ANY NOTIFICATIONS' | translate }}.
+										</div>
+										<div class="item noti-item" ng-repeat="friend in friends" ng-show="friend.status === 'pendding'">
+											<img src="{{ friend.avatar }}"/>
+											<div style="width: 100%;">
+												<span class="title">{{ friend.name }}</span>
+												<br/>
+												<span>{{ friend.email }}</span>
+											</div>
+											<button class="btn btn-accept" ng-click="AcceptOrCancel('accept', friend)">{{ 'ACCEPT' | translate }}</button>
+											<button class="btn btn-cancel" ng-click="AcceptOrCancel('cancel', friend)">{{ 'CANCEL' | translate }}</button>
+										</div>
+									</div>
+								</div>
+							  
+							</div>
+						</div>
+
+						<p>Chat</p>
+						<i class="icon ion-ios-telephone-outline pull-right" style="position: absolute; top: 7px; right: 87px;"></i>
+						<i class="icon ion-ios-videocam-outline pull-right" style="position: absolute; top: 7px; right: 47px;"></i>
+						<i class="icon ion-ios-information-outline pull-right" style="position: absolute; top: 7px; right: 7px;"></i>
+					</div>
+
+					<div class="list" schroll-bottom="messages" style="height: calc(100% - 80px); padding-top: 10px;">
+						<div class="message" ng-repeat="message in messages" ng-class="message.email === user.email ? 'sag' : 'sol'">
+							<img class="avatar" ng-hide="message.email === user.email" width="20" height="20" src="{{ message.img }}" title="{{ message.email }}" />
+							<div class="messageText" title="{{ message.time }}">
+								{{ message.message }}
+							</div>
+					    </div>
+					</div>
+
+					<div class="chatbox">
+						<button class="btn">
+							<i class="icon ion-ios-plus-empty"></i>
+						</button>
+						<textarea placeholder="{{'TYPE A MESSAGE' | translate}}..." ng-model="message" ng-keydown="send($event, message)"></textarea>
+						<button class="btn" style="padding-top: 12px;">
+							<i class="ti-face-smile" style="font-size: 16px;"></i>
+						</button>
+						<button class="btn" ng-click="addFriend()">
+							<i class="icon ion-ios-paperplane"></i>
+						</button>
+					</div>
+
+					
+			  	</div>
+			</div>
+		</div>
+	<% } else { %>
+		<script type="text/javascript">
+			var user = null
+		</script>
+		<div style="height: 100vh; width: 100%; background: url('resources/background.jpg') center center no-repeat fixed; background-size: cover;">
+			<div class="transparent"></div>
+			<div class="content">
+				<!-- <p>Welcome! Please
+					<a href="/login">log in</a>. If you don't have account, please 
+					<a href="/signup">sign up</a>.
+				</p> -->
+				<div>
+					<h1>{{ 'TALK TOGETHER' | translate }}</h1>
+					<h2>{{ 'A WEBSITE HELPS YOU CHAT, TALK AND WORK TOGETHER' | translate }}.</h2>
+					<div class="area-button">
+						<a href="/login" id="btn-login" class="btn">
+							<span>{{ 'LOGIN' | translate }}</span>
+						</a>
+						<a href="/signup" id="btn-signup" class="btn">
+							<span>{{ 'SIGN UP' | translate }}</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	<% } %>
+</body>
+	
+	<script src="js/index.js"></script>
+	<script src="js/homeCtrl.js"></script>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "gulp serve"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "opn": "*",
+    "gulp": "*",
+    "gulp-nodemon": "*",
+    "gulp-sass": "*",
+    "gulp-special-html": "*",
+    "gulp-livereload": "*"
+  },
+  "dependencies": {
+    "express": "*",
+    "express-session": "*",
+    "ejs": "*",
+    "cors": "*",
+    "body-parser": "*",
+    "cookie-parser": "*",
+    "mongoose": "*",    
+    "passport": "*",
+    "passport-local": "*",
+    "bcrypt": "*",
+    "node-uuid": "*",
+    "socket.io": "*"
+  }
+}
