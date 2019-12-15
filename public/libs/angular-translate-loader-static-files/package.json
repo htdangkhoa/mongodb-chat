@@ -21,7 +21,7 @@
   },
   "homepage": "https://angular-translate.github.io",
   "dependencies": {
-    "angular-translate": "~2.13.1"
+    "angular-translate": "~2.18.1"
   },
   "gitHead": "59c5996893978339fb7455cde14f1b9854a42b07",
   "_id": "angular-translate-loader-static-files@2.13.1",
